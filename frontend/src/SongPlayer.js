@@ -1,8 +1,9 @@
 import React from 'react';
 
-const SongPlayer = ({ audioRef, handlePlay, playDuration }) => (
+const SongPlayer = ({ audioRef, handlePlay }) => (
   <div style={{ textAlign: 'center' }}> {/* Center the button */}
-    <audio ref={audioRef} src="song.mp3" />
+    {/* Remove the static src attribute from here */}
+    <audio ref={audioRef} controls />
     <button onClick={handlePlay} style={{
       cursor: 'pointer',
       width: '100px', // Adjust size as needed
@@ -16,9 +17,10 @@ const SongPlayer = ({ audioRef, handlePlay, playDuration }) => (
       alignItems: 'center',
       justifyContent: 'center',
       outline: 'none',
+      marginTop: '20px', // Add some space above the play button
     }}>
-      <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"> {/* Adjust SVG size as needed */}
-        <path d="M8 5v14l11-7z" /> {/* Triangle path */}
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"> {/* Triangle icon for play */}
+        <path d="M8 5v14l11-7z" />
       </svg>
     </button>
   </div>

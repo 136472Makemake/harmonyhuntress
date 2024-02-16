@@ -16,9 +16,29 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [history, setHistory] = useState([]); // Track guesses and skips
   const [barKey, setBarKey] = useState(0);
+  const [correctAnswer, setCorrectAnswer] = useState(""); // Now stateful to update dynamically
   const audioRef = useRef(null);
 
-  const correctAnswer = "Your Song Name"; // Hardcoded correct answer
+  useEffect(() => {
+    fetch('http://localhost:5000/random_song')
+      .then(response => {
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let fileName = contentDisposition?.split('filename=')[1]?.split(';')[0]?.replace(/\"/g, '');
+        if (fileName) {
+          fileName = fileName.replace('.mp3', '');
+          setCorrectAnswer(fileName);
+        }
+
+        return response.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        if (audioRef.current) {
+          audioRef.current.src = url;
+        }
+      })
+      .catch(error => console.error('Error fetching the song:', error));
+  }, []); 
   
   useEffect(() => {
     const updateProgress = () => {
@@ -34,29 +54,28 @@ function App() {
 
   const handlePlay = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = 0; // Start from the beginning
+      audioRef.current.currentTime = 0;
       audioRef.current.play();
       setLastAudioPlayedDuration(playDuration);
       setBarKey(prevKey => prevKey + 1);
       setTimeout(() => {
         audioRef.current.pause();
-      }, playDuration * 1000); // Play for the specified duration
+      }, playDuration * 1000);
     }
   };
 
   const handleSkip = () => {
     if (guessesLeft > 1) {
-      // Add a skipped entry as an object with a special status
       const skippedItem = {
-        guess: 'Skipped', // Indicate the action taken was a skip
-        status: 'skipped' // A special status for skipped attempts
+        guess: 'Skipped',
+        status: 'skipped'
       };
       
       setHistory(history => [...history, skippedItem]);
       updateGuessesAndDuration();
     } else {
       setMessage("No more guesses left. You've lost.");
-      setPlayDuration(0); // No more playing needed
+      setPlayDuration(0);
       setGuessesLeft(0);
     }
   };
@@ -65,7 +84,6 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Determine if the guess is correct
     const isCorrect = guess.toLowerCase() === correctAnswer.toLowerCase();
     
     // Add the guess and its status to the history
