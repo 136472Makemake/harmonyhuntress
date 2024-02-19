@@ -2,7 +2,6 @@ import React from 'react';
 
 const ProgressBar = ({ duration, maxDuration }) => {
   const controlWidthPercentage = (duration / maxDuration) * 100;
-  console.log(controlWidthPercentage)
 
   return (
     <div className="progress-container" style={{ width: '100%', backgroundColor: '#ccc', borderRadius: '10px', overflow: 'hidden' }}>

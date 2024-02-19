@@ -12,16 +12,17 @@ function App() {
   const [message, setMessage] = useState('');
   const [playDuration, setPlayDuration] = useState(2);
   const [lastAudioPlayedDuration, setLastAudioPlayedDuration] = useState(0);
-  const [guessesLeft, setGuessesLeft] = useState(3); // Total of 3 guesses
+  const [guessesLeft, setGuessesLeft] = useState(3);
   const [progress, setProgress] = useState(0);
   const [history, setHistory] = useState([]); // Track guesses and skips
   const [barKey, setBarKey] = useState(0);
-  const [correctAnswer, setCorrectAnswer] = useState(""); // Now stateful to update dynamically
+  const [correctAnswer, setCorrectAnswer] = useState("");
   const audioRef = useRef(null);
 
-  useEffect(() => {
+  const fetchSong = () => {
     fetch('http://localhost:5000/random_song')
       .then(response => {
+        console.log(response)
         const contentDisposition = response.headers.get('Content-Disposition');
         let fileName = contentDisposition?.split('filename=')[1]?.split(';')[0]?.replace(/\"/g, '');
         if (fileName) {
@@ -38,19 +39,11 @@ function App() {
         }
       })
       .catch(error => console.error('Error fetching the song:', error));
-  }, []); 
-  
+  };
+
   useEffect(() => {
-    const updateProgress = () => {
-      if (audioRef.current) {
-        const progress = (audioRef.current.currentTime / playDuration) * 100;
-        setProgress(progress);
-      }
-    };
-    
-    audioRef.current.addEventListener('timeupdate', updateProgress);
-    return () => audioRef.current.removeEventListener('timeupdate', updateProgress);
-  }, [playDuration]);
+    fetchSong();
+  }, []);
 
   const handlePlay = () => {
     if (audioRef.current) {
@@ -79,32 +72,27 @@ function App() {
       setGuessesLeft(0);
     }
   };
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
     const isCorrect = guess.toLowerCase() === correctAnswer.toLowerCase();
     
-    // Add the guess and its status to the history
     const historyItem = {
-      guess: guess, // The guess made by the user
-      status: isCorrect ? 'correct' : 'incorrect' // The status based on correctness
+      guess: guess,
+      status: isCorrect ? 'correct' : 'incorrect'
     };
     
     setHistory(history => [...history, historyItem]);
     
-    // Handle the guess being correct
     if (isCorrect) {
       setMessage("Correct! Well done.");
-      setPlayDuration(0); // No more playing needed
+      setPlayDuration(0);
       setGuessesLeft(0);
     } else {
-      // If the guess is incorrect, possibly update the play duration and guesses left
       updateGuessesAndDuration();
     }
     
-    // Reset the guess input field
     setGuess('');
   };
 
@@ -120,14 +108,29 @@ function App() {
     }
   };
 
+  const loadNewSong = () => {
+    // Reset the game state
+    setGuess('');
+    setMessage('');
+    setPlayDuration(2);
+    setLastAudioPlayedDuration(0);
+    setGuessesLeft(3);
+    setProgress(0);
+    setHistory([]);
+    setBarKey(prevKey => prevKey + 1); // Resetting the ProgressBar
+    // Fetch a new song
+    fetchSong();
+  };
+
   return (
     <div className="App">
+      <GuessForm guess={guess} setGuess={setGuess} handleSubmit={handleSubmit} guessesLeft={guessesLeft} />
       <button onClick={handleSkip}>Skip Attempt</button>
-      <GuessForm guess={guess} setGuess={setGuess} handleSubmit={handleSubmit} />
       <ProgressBar duration={lastAudioPlayedDuration} maxDuration={maxDuration} key={barKey}/>
       <SongPlayer audioRef={audioRef} handlePlay={handlePlay} playDuration={playDuration} />
       <MessageDisplay message={message} />
       <HistoryDisplay history={history} />
+      <button onClick={loadNewSong}>New Song</button>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import React from 'react';
 const SongPlayer = ({ audioRef, handlePlay }) => (
   <div style={{ textAlign: 'center' }}> {/* Center the button */}
     {/* Remove the static src attribute from here */}
-    <audio ref={audioRef} controls />
+    <audio ref={audioRef} />
     <button onClick={handlePlay} style={{
       cursor: 'pointer',
       width: '100px', // Adjust size as needed
