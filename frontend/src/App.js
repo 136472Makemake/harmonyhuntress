@@ -18,9 +18,10 @@ function App() {
   const [barKey, setBarKey] = useState(0);
   const [correctAnswer, setCorrectAnswer] = useState("");
   const audioRef = useRef(null);
+  const [songsList, setSongsList] = useState({});
 
   const fetchSong = () => {
-    fetch('http://localhost:5000/random_song')
+    fetch('http://localhost:4000/random_song')
       .then(response => {
         console.log(response)
         const contentDisposition = response.headers.get('Content-Disposition');
@@ -40,6 +41,15 @@ function App() {
       })
       .catch(error => console.error('Error fetching the song:', error));
   };
+
+  useEffect(() => {
+    fetch('http://localhost:4000/songs')
+      .then(response => response.json())
+      .then(data => {
+        setSongsList(data);
+      })
+      .catch(error => console.error('Error fetching the songs:', error));
+  }, []);
 
   useEffect(() => {
     fetchSong();
@@ -109,7 +119,6 @@ function App() {
   };
 
   const loadNewSong = () => {
-    // Reset the game state
     setGuess('');
     setMessage('');
     setPlayDuration(2);
@@ -117,14 +126,13 @@ function App() {
     setGuessesLeft(3);
     setProgress(0);
     setHistory([]);
-    setBarKey(prevKey => prevKey + 1); // Resetting the ProgressBar
-    // Fetch a new song
+    setBarKey(prevKey => prevKey + 1);
     fetchSong();
   };
 
   return (
     <div className="App">
-      <GuessForm guess={guess} setGuess={setGuess} handleSubmit={handleSubmit} guessesLeft={guessesLeft} />
+      <GuessForm guess={guess} setGuess={setGuess} handleSubmit={handleSubmit} guessesLeft={guessesLeft} songsList={songsList} />
       <button onClick={handleSkip}>Skip Attempt</button>
       <ProgressBar duration={lastAudioPlayedDuration} maxDuration={maxDuration} key={barKey}/>
       <SongPlayer audioRef={audioRef} handlePlay={handlePlay} playDuration={playDuration} />

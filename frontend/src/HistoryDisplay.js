@@ -7,14 +7,14 @@ const HistoryDisplay = ({ history }) => (
       let backgroundColor;
       switch (item.status) {
         case 'correct':
-          backgroundColor = '#4CAF50'; // Green for correct guesses
+          backgroundColor = '#4CAF50';
           break;
         case 'incorrect':
-          backgroundColor = '#f44336'; // Red for incorrect guesses
+          backgroundColor = '#f44336';
           break;
         case 'skipped':
         default:
-          backgroundColor = '#ccc'; // Grey for skipped or any other status
+          backgroundColor = '#ccc';
       }
 
       return (

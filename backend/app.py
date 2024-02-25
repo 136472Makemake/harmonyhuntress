@@ -11,10 +11,6 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, expose_headers=['Content-Disposition'])
 
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')
-LASTFM_KEY = os.getenv('LASTFM_KEY')
-
 SONGS_DIRECTORY = os.path.join(app.root_path, 'songs')
 
 @app.route('/random_song', methods=['GET'])
@@ -25,9 +21,17 @@ def random_song():
             return "No songs found in the directory", 404
         
         selected_song = random.choice(songs)
-        selected_song = "Katy Perry - Teenage Dream.mp3"
         
         return send_from_directory(SONGS_DIRECTORY, selected_song, as_attachment=True)
+    except Exception as e:
+        return str(e), 500
+    
+@app.route('/songs', methods=['GET'])
+def send_songs_file():
+    try:
+        directory = os.path.join(app.root_path, 'static')
+        filename = 'artists_songs.json'
+        return send_from_directory(directory, filename, as_attachment=True)
     except Exception as e:
         return str(e), 500
 
