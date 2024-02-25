@@ -6,13 +6,9 @@ const GuessForm = ({ guess, setGuess, handleSubmit, guessesLeft, songsList }) =>
   useEffect(() => {
     if (guess) {
       const lowerCaseGuess = guess.toLowerCase();
-      const filteredSuggestions = [];
-      
-      Object.keys(songsList).forEach(artist => {
-        if (artist.toLowerCase().includes(lowerCaseGuess)) {
-          filteredSuggestions.push(...songsList[artist].map(song => `${song} - ${artist}`));
-        }
-      });
+      const filteredSuggestions = songsList
+        .filter(song => song.toLowerCase().includes(lowerCaseGuess))
+        .slice(0, 10);
       
       setSuggestions(filteredSuggestions);
     } else {

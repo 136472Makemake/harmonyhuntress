@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 import requests
 import json
@@ -27,13 +27,14 @@ def random_song():
         return str(e), 500
     
 @app.route('/songs', methods=['GET'])
-def send_songs_file():
+def list_song_names():
+    songs_directory = os.path.join(app.root_path, 'songs')
     try:
-        directory = os.path.join(app.root_path, 'static')
-        filename = 'artists_songs.json'
-        return send_from_directory(directory, filename, as_attachment=True)
+        files = os.listdir(songs_directory)
+        song_names = [file[:-4] for file in files if file.endswith('.mp3')]
+        return jsonify(song_names)
     except Exception as e:
         return str(e), 500
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
